@@ -9,7 +9,7 @@ class Box64Launcher(private val paths: LauncherPaths, private val filesDir: File
     fun preflight(): List<String> {
         val problems = mutableListOf<String>()
         if (!paths.box64.isFile) problems += "libbox64.so is missing (put an Android arm64 build in app/src/main/jniLibs/arm64-v8a/)"
-        if (!paths.rootfs.isDirectory) problems += "x86_64 rootfs not installed (use "Install rootfs")"
+        if (!paths.rootfs.isDirectory) problems += "x86_64 rootfs not installed (use 'Install rootfs')"
         if (paths.findGameExecutable() == null) problems += "Game files not imported (need <Name> and <Name>_Data from the Linux build)"
         return problems
     }

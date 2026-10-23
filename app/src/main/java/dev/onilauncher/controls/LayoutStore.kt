@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import java.io.File
 
-/** Layout files live in files/controls/*.json. A default is copied from assets on first run. */
+/** Layout files live in files/controls/NAME.json. A default is copied from assets on first run. */
 class LayoutStore(private val ctx: Context) {
     private val dir: File get() = File(ctx.filesDir, "controls").also { it.mkdirs() }
 
