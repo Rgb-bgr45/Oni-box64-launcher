@@ -21,7 +21,7 @@ import java.io.File
  */
 class ControlsActivity : Activity() {
     private lateinit var store: LayoutStore
-    private lateinit var overlay: ControlOverlayView
+    private lateinit var ctrlOverlay: ControlOverlayView
     private lateinit var logView: TextView
     private lateinit var layoutBtn: Button
     private lateinit var editBtn: Button
@@ -36,17 +36,17 @@ class ControlsActivity : Activity() {
         store.ensureDefaults()
         files = store.list()
 
-        overlay = ControlOverlayView(this, LoggingInputSink(::appendLog))
-        overlay.onLayoutEdited = {
-            overlay.layout?.let { l -> files.getOrNull(index)?.let { f -> store.save(f, l) } }
+        ctrlOverlay = ControlOverlayView(this, LoggingInputSink(::appendLog))
+        ctrlOverlay.onLayoutEdited = {
+            ctrlOverlay.layout?.let { l -> files.getOrNull(index)?.let { f -> store.save(f, l) } }
         }
 
         layoutBtn = Button(this).apply { setOnClickListener { cycleLayout() } }
         editBtn = Button(this).apply {
             text = "Edit: off"
             setOnClickListener {
-                overlay.editMode = !overlay.editMode
-                text = if (overlay.editMode) "Edit: on (drag controls)" else "Edit: off"
+                ctrlOverlay.editMode = !ctrlOverlay.editMode
+                text = if (ctrlOverlay.editMode) "Edit: on (drag controls)" else "Edit: off"
             }
         }
         val importBtn = Button(this).apply {
@@ -72,7 +72,7 @@ class ControlsActivity : Activity() {
 
         setContentView(FrameLayout(this).apply {
             setBackgroundColor(0xFF202830.toInt())
-            addView(overlay, ViewGroup.LayoutParams(-1, -1))
+            addView(ctrlOverlay, ViewGroup.LayoutParams(-1, -1))
             addView(bar, FrameLayout.LayoutParams(-2, -2, Gravity.TOP or Gravity.START))
         })
         loadCurrent()
@@ -81,7 +81,7 @@ class ControlsActivity : Activity() {
     private fun loadCurrent() {
         val f = files.getOrNull(index) ?: return
         try {
-            overlay.layout = store.load(f)
+            ctrlOverlay.layout = store.load(f)
             layoutBtn.text = "Layout: ${f.nameWithoutExtension}"
         } catch (e: Exception) {
             appendLog("Layout error (${f.name}): ${e.message}")
