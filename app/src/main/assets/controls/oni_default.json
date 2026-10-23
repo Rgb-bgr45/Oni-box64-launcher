@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "name": "ONI default",
+  "layers": [
+    {
+      "id": "main",
+      "visible": true,
+      "controls": [
+        { "type": "joystick", "id": "pan", "x": 0.04, "y": 0.50, "size": 140,
+          "keys": { "up": "W", "down": "S", "left": "A", "right": "D" } },
+        { "type": "button", "id": "esc", "label": "Esc", "x": 0.60, "y": 0.03, "w": 52, "h": 48,
+          "action": { "kind": "key", "value": "ESC" } },
+        { "type": "button", "id": "speed1", "label": "1", "x": 0.68, "y": 0.03, "w": 52, "h": 48,
+          "action": { "kind": "key", "value": "1" } },
+        { "type": "button", "id": "speed2", "label": "2", "x": 0.75, "y": 0.03, "w": 52, "h": 48,
+          "action": { "kind": "key", "value": "2" } },
+        { "type": "button", "id": "speed3", "label": "3", "x": 0.82, "y": 0.03, "w": 52, "h": 48,
+          "action": { "kind": "key", "value": "3" } },
+        { "type": "button", "id": "pause", "label": "Pause", "x": 0.89, "y": 0.03, "w": 60, "h": 48,
+          "action": { "kind": "key", "value": "SPACE" } },
+        { "type": "layerToggle", "id": "more", "label": "More", "x": 0.89, "y": 0.17, "w": 60, "h": 48,
+          "target": "extra" }
+      ]
+    },
+    {
+      "id": "extra",
+      "visible": false,
+      "controls": [
+        { "type": "button", "id": "shift", "label": "Shift", "x": 0.89, "y": 0.31, "w": 60, "h": 48,
+          "mode": "toggle", "action": { "kind": "key", "value": "SHIFT" } },
+        { "type": "button", "id": "ctrl", "label": "Ctrl", "x": 0.89, "y": 0.45, "w": 60, "h": 48,
+          "mode": "toggle", "action": { "kind": "key", "value": "CTRL" } },
+        { "type": "button", "id": "tab", "label": "Tab", "x": 0.89, "y": 0.59, "w": 60, "h": 48,
+          "action": { "kind": "key", "value": "TAB" } },
+        { "type": "button", "id": "zoomin", "label": "Zoom +", "x": 0.80, "y": 0.73, "w": 68, "h": 48,
+          "action": { "kind": "scroll", "value": "up" } },
+        { "type": "button", "id": "zoomout", "label": "Zoom -", "x": 0.89, "y": 0.87, "w": 68, "h": 48,
+          "action": { "kind": "scroll", "value": "down" } }
+      ]
+    }
+  ]
+}
