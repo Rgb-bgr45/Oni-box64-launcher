@@ -73,7 +73,7 @@ class ControlsActivity : Activity() {
         logView = TextView(this).apply { textSize = 11f; setTextColor(0xFFFFFFFF.toInt()) }
 
         val buttons = HorizontalScrollView(this).apply {
-            addView(LinearLayout(context).apply {
+            addView(LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 addView(layoutBtn); addView(editBtn); addView(addBtn); addView(layersBtn); addView(importBtn)
             })
