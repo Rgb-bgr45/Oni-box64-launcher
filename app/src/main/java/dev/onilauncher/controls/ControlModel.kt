@@ -16,26 +16,26 @@ abstract class Control {
 
 class ButtonControl(
     override val id: String, override var x: Float, override var y: Float,
-    val widthDp: Float, val heightDp: Float,
-    val label: String, val action: Action, val mode: PressMode,
+    var widthDp: Float, var heightDp: Float,
+    var label: String, var action: Action, var mode: PressMode,
 ) : Control()
 
 class JoystickControl(
     override val id: String, override var x: Float, override var y: Float,
-    val sizeDp: Float,
-    val up: String, val down: String, val left: String, val right: String,
+    var sizeDp: Float,
+    var up: String, var down: String, var left: String, var right: String,
 ) : Control()
 
 /** Shows/hides another layer when tapped. */
 class LayerToggleControl(
     override val id: String, override var x: Float, override var y: Float,
-    val widthDp: Float, val heightDp: Float,
-    val label: String, val target: String,
+    var widthDp: Float, var heightDp: Float,
+    var label: String, var target: String,
 ) : Control()
 
-class Layer(val id: String, var visible: Boolean, val controls: List<Control>)
+class Layer(val id: String, var visible: Boolean, val controls: MutableList<Control>)
 
-class Layout(val version: Int, val name: String, val layers: List<Layer>)
+class Layout(val version: Int, val name: String, val layers: MutableList<Layer>)
 
 object KeyNames {
     val valid: Set<String> = buildSet {

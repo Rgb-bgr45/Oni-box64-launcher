@@ -24,6 +24,8 @@ class ControlOverlayView(ctx: Context, private val sink: InputSink) : View(ctx) 
     var editMode: Boolean = false
         set(value) { releaseAll(); field = value; invalidate() }
     var onLayoutEdited: (() -> Unit)? = null
+    /** Edit mode: a control was tapped (not dragged). */
+    var onControlTapped: ((Control) -> Unit)? = null
 
     private val density = resources.displayMetrics.density
     private val cursorSensitivity = 1.5f
@@ -46,6 +48,9 @@ class ControlOverlayView(ctx: Context, private val sink: InputSink) : View(ctx) 
         var holdTask: Runnable? = null
     }
     private val cursors = SparseArray<CursorPtr>()
+
+    private class EditDrag(val startX: Float, val startY: Float) { var moved = false }
+    private val editDrags = SparseArray<EditDrag>()
 
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
     private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -131,7 +136,7 @@ class ControlOverlayView(ctx: Context, private val sink: InputSink) : View(ctx) 
         val hit = visibleControls().lastOrNull { bounds(it).contains(x, y) }
         if (hit != null) {
             owners.put(id, hit)
-            if (!editMode) press(hit, x, y)
+            if (editMode) editDrags.put(id, EditDrag(x, y)) else press(hit, x, y)
             return
         }
         if (editMode) return
@@ -154,8 +159,11 @@ class ControlOverlayView(ctx: Context, private val sink: InputSink) : View(ctx) 
     private fun pointerMove(id: Int, x: Float, y: Float) {
         val owned = owners.get(id)
         if (owned != null) {
-            if (editMode) moveControl(owned, x, y)
-            else if (owned is JoystickControl) updateJoystick(owned, x, y)
+            if (editMode) {
+                val d = editDrags.get(id)
+                if (d != null && !d.moved && hypot(x - d.startX, y - d.startY) > slop) d.moved = true
+                if (d == null || d.moved) moveControl(owned, x, y)
+            } else if (owned is JoystickControl) updateJoystick(owned, x, y)
             return
         }
         val p = cursors.get(id) ?: return
@@ -174,7 +182,11 @@ class ControlOverlayView(ctx: Context, private val sink: InputSink) : View(ctx) 
         val owned = owners.get(id)
         if (owned != null) {
             owners.remove(id)
-            if (editMode) onLayoutEdited?.invoke() else release(owned)
+            if (editMode) {
+                val d = editDrags.get(id)
+                editDrags.remove(id)
+                if (d != null && !d.moved) onControlTapped?.invoke(owned) else onLayoutEdited?.invoke()
+            } else release(owned)
             return
         }
         val p = cursors.get(id) ?: return
@@ -275,8 +287,9 @@ class ControlOverlayView(ctx: Context, private val sink: InputSink) : View(ctx) 
 
     /** Lifts everything that is currently held so nothing gets stuck. */
     fun releaseAll() {
-        for (i in 0 until owners.size()) release(owners.valueAt(i))
+        if (!editMode) for (i in 0 until owners.size()) release(owners.valueAt(i))
         owners.clear()
+        editDrags.clear()
         toggled.filterIsInstance<ButtonControl>().forEach { fire(it.action, false) }
         toggled.clear()
         for (i in 0 until cursors.size()) {

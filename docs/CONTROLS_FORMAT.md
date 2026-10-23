@@ -36,3 +36,9 @@ press-and-hold then drag = left button held (for drag-selecting areas).
 ## Notes
 - Control and layer ids must be unique; invalid files are rejected with a message.
 - The default layout's ONI keys are guesses based on common bindings. ONI lets you rebind keys, so edit them.
+
+## Editing in the app
+Controls screen -> Edit: drag a control to move it, tap it to change label, action, size or delete it.
+Add creates a Button, Joystick, Layer toggle or a new layer. New controls go to the topmost visible layer.
+Layers lets you show/hide layers while editing; the visibility you leave is saved as the starting state.
+Layout files are in the app data folder: Android/data/dev.onilauncher.bgr45/files/controls/

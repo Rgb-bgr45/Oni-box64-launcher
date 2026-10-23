@@ -1,5 +1,18 @@
 # ONI Box64 Launcher (starter)
 
+## Changelog
+### 0.2.0
+- Application id is now `dev.onilauncher.bgr45` (installs separately from 0.1.0)
+- Data moved to `Android/data/dev.onilauncher.bgr45/files/`: `games/oni`, `controls`, `home` (game saves), `logs`
+- The rootfs stays in internal storage: it needs symlinks, which external app storage does not support
+- Game files are optional: the launcher starts without them; "Launch game" only reports what is missing
+- New Diagnostics button (device info, folders, runs `box64 -v` if present, writes `logs/diagnostics.txt`)
+- Touch editor: tap a control to edit label/action/size/mode or delete it; Add button/joystick/layer toggle/new layer; Layers dialog
+- Game output is saved to `logs/last-run.log`
+
+Note: on Android 11+ many file managers cannot open `Android/data`. Connecting the phone to a PC over USB,
+`adb pull`, or a file manager with special access (e.g. via Shizuku) usually works.
+
 Android launcher skeleton that runs the **Linux x86_64 build of Oxygen Not Included**
 under **box64**. It contains **no game files**: the user imports their own copy.
 

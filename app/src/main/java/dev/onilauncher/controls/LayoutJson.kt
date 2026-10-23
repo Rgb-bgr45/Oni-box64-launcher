@@ -62,28 +62,33 @@ object LayoutJson {
         }
     }
 
-    private fun key(id: String, keys: JSONObject, dir: String): String {
-        val name = keys.getString(dir).uppercase()
+    private fun key(id: String, keys: JSONObject, dir: String): String =
+        keyName(id, keys.getString(dir))
+
+    /** Normalizes and validates a key name; throws IllegalArgumentException if unknown. */
+    fun keyName(id: String, raw: String): String {
+        val name = raw.trim().uppercase()
         require(name in KeyNames.valid) { "Control '$id': unknown key '$name'" }
         return name
     }
 
-    private fun parseAction(id: String, a: JSONObject): Action {
-        val kind = when (val k = a.getString("kind").lowercase()) {
+    private fun parseAction(id: String, a: JSONObject): Action =
+        makeAction(id, a.getString("kind"), a.getString("value"))
+
+    /** Validates an action typed by the user or read from JSON. */
+    fun makeAction(id: String, kindRaw: String, raw: String): Action {
+        val kind = when (val k = kindRaw.trim().lowercase()) {
             "key" -> ActionKind.KEY
             "mouse" -> ActionKind.MOUSE
             "scroll" -> ActionKind.SCROLL
             else -> throw IllegalArgumentException("Control '$id': unknown action kind '$k'")
         }
-        val raw = a.getString("value")
         val value = when (kind) {
-            ActionKind.KEY -> raw.uppercase().also {
-                require(it in KeyNames.valid) { "Control '$id': unknown key '$it'" }
-            }
-            ActionKind.MOUSE -> raw.lowercase().also {
+            ActionKind.KEY -> keyName(id, raw)
+            ActionKind.MOUSE -> raw.trim().lowercase().also {
                 require(it in setOf("left", "right", "middle")) { "Control '$id': unknown mouse button '$it'" }
             }
-            ActionKind.SCROLL -> raw.lowercase().also {
+            ActionKind.SCROLL -> raw.trim().lowercase().also {
                 require(it in setOf("up", "down")) { "Control '$id': scroll must be up or down" }
             }
         }

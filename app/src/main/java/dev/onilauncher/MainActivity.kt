@@ -21,9 +21,9 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         paths = LauncherPaths(this)
-        launcher = Box64Launcher(paths, filesDir)
+        launcher = Box64Launcher(paths)
 
-        status = TextView(this).apply { textSize = 16f }
+        status = TextView(this).apply { textSize = 15f }
         log = TextView(this).apply { textSize = 12f; setTextIsSelectable(true) }
         scroll = ScrollView(this).apply { addView(log) }
 
@@ -37,7 +37,8 @@ class MainActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             setPadding(32, 48, 32, 32)
             addView(status)
-            addView(button("Select game folder (Linux build)") {
+            addView(button("Diagnostics (check that the launcher works)") { runDiagnostics() })
+            addView(button("Select game folder (optional)") {
                 startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), pickGame)
             })
             addView(button("Install rootfs (x86_64 .tar/.tar.gz/.tar.xz)") {
@@ -47,15 +48,23 @@ class MainActivity : Activity() {
                 )
             })
             addView(button("Touch controls") { startActivity(Intent(this@MainActivity, ControlsActivity::class.java)) })
-            addView(button("Launch") { launch() })
+            addView(button("Launch game") { launch() })
             addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
         })
         refreshStatus()
     }
 
+    private fun mark(ok: Boolean) = if (ok) "OK" else "missing"
+
     private fun refreshStatus() {
-        val problems = launcher.preflight()
-        status.text = if (problems.isEmpty()) "Ready" else "Not ready:\n- " + problems.joinToString("\n- ")
+        status.text = buildString {
+            appendLine("Launcher: running (game files are optional)")
+            appendLine("box64: ${mark(launcher.hasBox64)}")
+            appendLine("Rootfs: ${mark(launcher.hasRootfs)}")
+            appendLine("Game files: ${mark(launcher.hasGame)}")
+            append("Data folder: ${paths.dataRoot}")
+            if (!paths.external) append("  (internal fallback)")
+        }
     }
 
     private fun appendLog(line: String) = runOnUiThread {
@@ -64,9 +73,23 @@ class MainActivity : Activity() {
     }
 
     private fun launch() {
-        if (launcher.preflight().isNotEmpty()) { refreshStatus(); return }
+        val problems = launcher.preflight()
+        if (problems.isNotEmpty()) {
+            appendLog("Cannot start the game yet:")
+            problems.forEach { appendLog(" - $it") }
+            return
+        }
         appendLog("Starting...")
         launcher.start(::appendLog) { code -> appendLog("Exited with code $code") }
+    }
+
+    private fun runDiagnostics() {
+        appendLog("Running diagnostics...")
+        Thread {
+            val report = Diagnostics(this, paths).run()
+            appendLog(report)
+            runOnUiThread { refreshStatus() }
+        }.start()
     }
 
     @Deprecated("Deprecated in Java")
