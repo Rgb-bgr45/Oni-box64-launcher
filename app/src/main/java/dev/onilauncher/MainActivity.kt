@@ -48,7 +48,7 @@ class MainActivity : Activity() {
                 )
             })
             addView(button("Touch controls") { startActivity(Intent(this@MainActivity, ControlsActivity::class.java)) })
-            addView(button("Launch game") { launch() })
+            addView(button("Launch (opens the game screen; test mode if game is missing)") { launch() })
             addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
         })
         refreshStatus()
@@ -61,7 +61,7 @@ class MainActivity : Activity() {
             appendLine("Launcher: running (game files are optional)")
             appendLine("box64: ${mark(launcher.hasBox64)}")
             appendLine("Rootfs: ${mark(launcher.hasRootfs)}")
-            appendLine("Game files: ${mark(launcher.hasGame)}")
+            appendLine("Game files: ${paths.gameStatusText()}")
             append("Data folder: ${paths.dataRoot}")
             if (!paths.external) append("  (internal fallback)")
         }
@@ -73,14 +73,7 @@ class MainActivity : Activity() {
     }
 
     private fun launch() {
-        val problems = launcher.preflight()
-        if (problems.isNotEmpty()) {
-            appendLog("Cannot start the game yet:")
-            problems.forEach { appendLog(" - $it") }
-            return
-        }
-        appendLog("Starting...")
-        launcher.start(::appendLog) { code -> appendLog("Exited with code $code") }
+        startActivity(Intent(this, GameActivity::class.java))
     }
 
     private fun runDiagnostics() {

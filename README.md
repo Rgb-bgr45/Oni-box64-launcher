@@ -1,6 +1,17 @@
 # ONI Box64 Launcher (starter)
 
 ## Changelog
+### 0.2.2
+- Launch opens a full-screen game screen: game surface (placeholder until a display backend exists),
+  touch controls on top using the first saved layout, live log with Log / Controls / Exit buttons
+- Starts the real game when box64, rootfs and the Linux game files are present, otherwise runs the test mode
+- Expected game files: a Unity **Linux** build (`<Name>` + `<Name>_Data`). Windows/Wine repacks and
+  compressed images (.dwarfs, .iso) are not supported
+### 0.2.1
+- "Launch game" now always does something: with the game, box64 and rootfs present it starts the game,
+  otherwise it runs a test mode (prints the plan, runs `box64 -v` if box64 exists) so you can check the launcher works
+- Game detection is smarter: searches 3 folders deep (so picking a parent folder works), accepts `<Name>.x86_64`,
+  and the status says WHY it is missing (empty folder, Windows build only, or what the folder contains)
 ### 0.2.0
 - Application id is now `dev.onilauncher.bgr45` (installs separately from 0.1.0)
 - Data moved to `Android/data/dev.onilauncher.bgr45/files/`: `games/oni`, `controls`, `home` (game saves), `logs`

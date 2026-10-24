@@ -21,7 +21,7 @@ class Diagnostics(private val ctx: Context, private val paths: LauncherPaths) {
             appendLine("Data folder: ${paths.dataRoot} (${if (paths.external) "external app folder" else "INTERNAL fallback"})")
             appendLine("Free space: ${paths.dataRoot.usableSpace / 1_000_000} MB")
             appendLine("Rootfs folder: ${paths.rootfs} (${if (paths.rootfs.isDirectory) "present" else "missing"})")
-            appendLine("Game folder: ${paths.gameDir} (${if (paths.findGameExecutable() != null) "game found" else "no game - optional"})")
+            appendLine("Game folder: ${paths.gameDir}\nGame files: ${paths.gameStatusText()} (optional)")
             appendLine("Control layouts: ${File(paths.dataRoot, "controls").listFiles { f -> f.extension == "json" }?.size ?: 0}")
             appendLine(box64Report())
         }
