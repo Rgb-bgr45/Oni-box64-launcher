@@ -19,7 +19,7 @@ import dev.onilauncher.controls.LoggingInputSink
  */
 class GameActivity : Activity() {
     private lateinit var launcher: Box64Launcher
-    private lateinit var overlay: ControlOverlayView
+    private lateinit var ctrlOverlay: ControlOverlayView
     private lateinit var logView: TextView
     private val lines = ArrayDeque<String>()
 
@@ -34,11 +34,11 @@ class GameActivity : Activity() {
         val paths = LauncherPaths(this)
         launcher = Box64Launcher(paths)
 
-        overlay = ControlOverlayView(this, LoggingInputSink(::appendLog))
+        ctrlOverlay = ControlOverlayView(this, LoggingInputSink(::appendLog))
         val store = LayoutStore(this, paths)
         store.ensureDefaults()
         try {
-            store.list().firstOrNull()?.let { overlay.layout = store.load(it) }
+            store.list().firstOrNull()?.let { ctrlOverlay.layout = store.load(it) }
         } catch (e: Exception) {
             appendLog("Layout error: ${e.message}")
         }
@@ -64,17 +64,17 @@ class GameActivity : Activity() {
                 logView.visibility = if (logView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
             })
             addView(smallButton("Controls") {
-                if (overlay.visibility == View.VISIBLE) {
-                    overlay.releaseAll()
-                    overlay.visibility = View.GONE
-                } else overlay.visibility = View.VISIBLE
+                if (ctrlOverlay.visibility == View.VISIBLE) {
+                    ctrlOverlay.releaseAll()
+                    ctrlOverlay.visibility = View.GONE
+                } else ctrlOverlay.visibility = View.VISIBLE
             })
             addView(smallButton("Exit") { finish() })
         }
 
         setContentView(FrameLayout(this).apply {
             addView(GameSurface(context), FrameLayout.LayoutParams(-1, -1))
-            addView(overlay, FrameLayout.LayoutParams(-1, -1))
+            addView(ctrlOverlay, FrameLayout.LayoutParams(-1, -1))
             addView(logView, FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM))
             addView(bar, FrameLayout.LayoutParams(-2, -2, Gravity.TOP or Gravity.START))
         })
@@ -96,7 +96,7 @@ class GameActivity : Activity() {
     }
 
     override fun onDestroy() {
-        overlay.releaseAll()
+        ctrlOverlay.releaseAll()
         launcher.stop()
         super.onDestroy()
     }

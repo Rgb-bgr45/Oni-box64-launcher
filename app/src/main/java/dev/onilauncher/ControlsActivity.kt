@@ -34,7 +34,7 @@ import java.io.File
  */
 class ControlsActivity : Activity() {
     private lateinit var store: LayoutStore
-    private lateinit var overlay: ControlOverlayView
+    private lateinit var ctrlOverlay: ControlOverlayView
     private lateinit var logView: TextView
     private lateinit var layoutBtn: Button
     private lateinit var editBtn: Button
@@ -49,13 +49,13 @@ class ControlsActivity : Activity() {
         store.ensureDefaults()
         files = store.list()
 
-        overlay = ControlOverlayView(this, LoggingInputSink(::appendLog))
-        overlay.onLayoutEdited = ::saveCurrent
-        overlay.onControlTapped = { c -> editControl(c) }
+        ctrlOverlay = ControlOverlayView(this, LoggingInputSink(::appendLog))
+        ctrlOverlay.onLayoutEdited = ::saveCurrent
+        ctrlOverlay.onControlTapped = { c -> editControl(c) }
 
         layoutBtn = Button(this).apply { setOnClickListener { cycleLayout() } }
         editBtn = Button(this).apply {
-            setOnClickListener { setEditMode(!overlay.editMode) }
+            setOnClickListener { setEditMode(!ctrlOverlay.editMode) }
         }
         setEditMode(false)
         val addBtn = Button(this).apply { text = "Add"; setOnClickListener { showAddMenu() } }
@@ -86,21 +86,21 @@ class ControlsActivity : Activity() {
 
         setContentView(FrameLayout(this).apply {
             setBackgroundColor(0xFF202830.toInt())
-            addView(overlay, ViewGroup.LayoutParams(-1, -1))
+            addView(ctrlOverlay, ViewGroup.LayoutParams(-1, -1))
             addView(bar, FrameLayout.LayoutParams(-1, -2, Gravity.TOP or Gravity.START))
         })
         loadCurrent()
     }
 
     private fun setEditMode(on: Boolean) {
-        overlay.editMode = on
+        ctrlOverlay.editMode = on
         editBtn.text = if (on) "Edit: on (drag = move, tap = edit)" else "Edit: off"
     }
 
     private fun loadCurrent() {
         val f = files.getOrNull(index) ?: return
         try {
-            overlay.layout = store.load(f)
+            ctrlOverlay.layout = store.load(f)
             layoutBtn.text = "Layout: ${f.nameWithoutExtension}"
         } catch (e: Exception) {
             appendLog("Layout error (${f.name}): ${e.message}")
@@ -114,23 +114,23 @@ class ControlsActivity : Activity() {
     }
 
     private fun saveCurrent() {
-        val layout = overlay.layout ?: return
+        val layout = ctrlOverlay.layout ?: return
         val file = files.getOrNull(index) ?: return
         try { store.save(file, layout) } catch (e: Exception) { appendLog("Save failed: ${e.message}") }
     }
 
     private fun editControl(c: Control) {
-        val layout = overlay.layout ?: return
+        val layout = ctrlOverlay.layout ?: return
         ControlEditorDialog(this, layout).show(c) {
             saveCurrent()
-            overlay.invalidate()
+            ctrlOverlay.invalidate()
         }
     }
 
     // ---------- add / layers ----------
 
     private fun showAddMenu() {
-        val layout = overlay.layout ?: return
+        val layout = ctrlOverlay.layout ?: return
         AlertDialog.Builder(this)
             .setTitle("Add")
             .setItems(arrayOf("Button", "Joystick", "Layer toggle", "New layer")) { _, which ->
@@ -156,7 +156,7 @@ class ControlsActivity : Activity() {
         val target = layout.layers.lastOrNull { it.visible } ?: layout.layers.first()
         target.controls.add(control)
         saveCurrent()
-        overlay.invalidate()
+        ctrlOverlay.invalidate()
         editControl(control)
     }
 
@@ -190,14 +190,14 @@ class ControlsActivity : Activity() {
 
     /** Visibility chosen here is saved as the layout's starting state. */
     private fun showLayersDialog() {
-        val layout = overlay.layout ?: return
+        val layout = ctrlOverlay.layout ?: return
         val names = layout.layers.map { it.id }.toTypedArray()
         val checked = BooleanArray(names.size) { layout.layers[it].visible }
         AlertDialog.Builder(this)
             .setTitle("Visible layers")
             .setMultiChoiceItems(names, checked) { _, i, isChecked ->
                 layout.layers[i].visible = isChecked
-                overlay.invalidate()
+                ctrlOverlay.invalidate()
                 saveCurrent()
             }
             .setPositiveButton("OK", null)

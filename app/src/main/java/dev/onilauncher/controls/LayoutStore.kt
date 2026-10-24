@@ -5,7 +5,7 @@ import android.net.Uri
 import dev.onilauncher.LauncherPaths
 import java.io.File
 
-/** Layout files live in <data folder>/controls/*.json. A default is copied from assets on first run. */
+/** Layout files live in <data folder>/controls/NAME.json. A default is copied from assets on first run. */
 class LayoutStore(private val ctx: Context, private val paths: LauncherPaths) {
     private val dir: File get() = paths.controlsDir
 
